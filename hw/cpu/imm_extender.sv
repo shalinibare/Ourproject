@@ -1,6 +1,6 @@
 module imm_extender (
 	input imm_sel [1:0],
-	input ins [26:0],
+	input inst [26:0],
 	output [31:0] imm_out
 );
 
