@@ -15,7 +15,7 @@ assign JMP = (opcode == 5'b10011);// | (opcode == 5'b10100); //JMP and FUN
 //assign MemInSel = ;
 //assign memwr
 //assign WbDataSel
-//assign WbRegSel,
+//assign WbRegSel
 //assign SPwe = ;
 //assign Reg0Sel = ;
 //assign imm_sel = ;
