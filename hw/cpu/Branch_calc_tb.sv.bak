@@ -75,8 +75,6 @@ initial begin
 	#5;
 	if(errors > 0) begin
 		$display("ERROR: tesbench not passed\n");
-	end else begin
-		$display("Test Passed!");
 	end
 	$display("Simulation end\n");
 	$stop();
