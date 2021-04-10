@@ -2,13 +2,13 @@
 module ALU(	
   input signed [31:0] ALU_A_in, ALU_B_in,
   input [4:0] opcode,
-  output signed [31:0] ALUOut
+  output logic [31:0] ALUOut
 );
 
 logic [2:0] op_type;
 //Determine ALU operation type
 always_comb begin
-	case(opcode) begin
+	case(opcode) 
 		5'b0001x: begin //SUB
 			op_type = 3'b001;
 			break;
@@ -29,24 +29,24 @@ always_comb begin
 			op_type = 3'b011;
 			break;
 		end
-		5'h01000: begin //OR
+		5'b01000: begin //OR
 			op_type = 3'b010;
 			break;
 		end
-		5'h01001: begin //NOT
+		5'b01001: begin //NOT
 			op_type = 3'b100;
 			break;
 		end
 		default: begin //Default to add op
-			ALUOp = 3'b000;
+			op_type = 3'b000;
 			break;
 		end
-	end
+	endcase
 end
 
 //Determine ALU ouput
 always_comb begin
-	case(op_type) begin
+	case(op_type) 
 		3'b000: begin //Add
 			ALUOut = ALU_A_in + ALU_B_in;
 			break;

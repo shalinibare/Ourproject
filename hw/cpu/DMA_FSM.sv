@@ -17,15 +17,15 @@ logic [2:0] nextState;
 
 //state control
 always_comb begin
-nextState = INIT; 
-case(currState) begin
-	INIT: break;
-	WEIGHTS: break;
-	DIMENSIONS: break;
-	BIASES: break;
-	IMAGES: break;
-	default: break;
-
+	nextState = INIT; 
+	case(currState) 
+		INIT: break;
+		WEIGHTS: break;
+		DIMENSIONS: break;
+		BIASES: break;
+		IMAGES: break;
+		default: break;
+	endcase
 end
 
 //load next state

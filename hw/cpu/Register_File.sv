@@ -8,6 +8,7 @@ module Register_File(
 
 reg [31:0] registers [31:0];
 
+//TODO: Implement bypassing for pipelined CPU
 assign Reg0Out = registers[Reg0];
 assign Reg1Out = registers[Reg1];
 
