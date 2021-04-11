@@ -36,6 +36,6 @@ module fetch(instr, addr_out, /* jump_ctrl ,*/ addr_in, rst, clk);
 	memory2c instr_mem(.data_out(instr), .data_in(16'h0), .addr(pcCurrent), .enable(1'b1), .wr(1'b0), .createdump(1'b0), .clk(clk), .rst(rst));
 
 	// Adder for PC
-	cla_16b adder(.A(pcCurrent), .B(16'h2), .C_in(1'b0), .S(addr_out), .C_out());
+	cla_16b adder(.A(pcCurrent), .B(16'h4), .C_in(1'b0), .S(addr_out), .C_out());
    
 endmodule
