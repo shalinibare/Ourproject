@@ -112,7 +112,7 @@ initial begin
 		$display("Test passed!");
 	end
 	$display("Simulation complete");
-
+	$stop();
 end
 
 
