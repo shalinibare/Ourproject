@@ -7,7 +7,7 @@ logic [4:0] opcode;
 function new();
 	A_in = $random();
 	B_in = $random();
-	opcode = $random();
+	opcode = $urandom_range(16);
 endfunction: new
 
 function int getOutput();
