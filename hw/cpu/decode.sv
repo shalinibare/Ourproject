@@ -19,23 +19,18 @@ always_comb begin
 	case(Reg0Sel) 
 		(2'b00): begin //Rx
 			Reg0In = inst[26:22];
-			break;
 		end
 		(2'b01): begin //Ry
 			Reg0In = inst[21:17];
-			break;
 		end
 		(2'b10): begin //LR
 			Reg0In = 5'b11110;
-			break;
 		end
 		(2'b11): begin //ILR
 			Reg0In = 5'b11111;
-			break;
 		end
 		default: begin //default to Ry
 			Reg0In = inst[21:17];
-			break;
 		end
 	endcase
 end
