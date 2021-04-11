@@ -47,13 +47,12 @@ module memory_controller
     reg BufferData[DATA_WIDTH-1:0];
     reg BufferFull;
 
-    sram #(.DATA_WIDTH(DATA_WIDTH),.ADDR_WIDTH(ADDR_WIDTH))
+    memory_map #(.DATA_WIDTH(DATA_WIDTH),.ADDR_WIDTH(ADDR_WIDTH))
     mem(.data_a(DataA),.data_b(DataB),.addr_a(AddrA),.addr_b(Addr_B),.we_a(WrA),.we_b(WrB),.clk(clk),.q_a(OutA),.q_b(OutB));
 
 
     // accessing sram
-    always@(posedge clk/*, negedge rst_n*/) begin
-
+    always@(posedge clk, negedge rst_n) begin
         // fulfill CPU request
         if (CPUEn) begin
             // Prioritze CPU for port A
@@ -117,18 +116,6 @@ module memory_controller
         else begin
             DMAValid <= 1'b0;
         end
-
-        // mmio read
-        always@(posedge clk, negedge rst_n) begin
-            
-        end
-
-        // mmio write
-        always@(posedge clk, negedge rst_n) begin
-            
-        end
-
-
     end
-      
+    
 endmodule
