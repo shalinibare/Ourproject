@@ -1,5 +1,3 @@
-`include "alu_tb.sv"
-
 module execute_tb();
 
 logic[31:0] RegData0, RegData1, SPOut, imm, exeOut, RegData1_o;
@@ -26,22 +24,39 @@ assign MemInSel = (opcode == 5'b01111); //Memory address select PUSH
 execute DUT(.*);
 
 int errors;
-alu_tc aluDriver;
 
+//Simple testbench, check multiplexer paths
 initial begin
 	RegData0 = 1;
+	SPOut = 4;
 	RegData1 = 2;
 	SPOut = 4;
 	imm = 3;
-	opcode = 0;
-	aluDriver = new();
+	opcode = 5'h00;
 	#5;
-	for(int i = 0; i < 20; i++) begin //This will act as opcode loop
-		opcode = i;
-		
-		#5;
-		
+	if(exeOut != 3) begin
+		$display("Error on ADD operation");
+		errors++;
 	end
+	opcode = 5'h01;
+	#5;
+	if(exeOut != 4) begin
+		$display("Error on ADD imm operation");
+		errors++;
+	end
+	opcode = 5'h10;
+	#5;
+	if(exeOut != 0) begin
+		$display("Error on POP operation, SPOut not decrementing");
+		errors++;
+	end
+	opcode = 5'h0F;
+	#5;
+	if(exeOut != 4) begin
+		$display("Error on PUSH operation, SPOut not passing through");
+		errors++;
+	end
+	
 	
 	if(errors > 0) begin
 		$display("Test failed, errors found: $d", errors);

@@ -10,6 +10,13 @@ function new();
 	opcode = $urandom_range(16);
 endfunction: new
 
+function setParams(int Ain, int Bin, int op);
+	A_in = Ain;
+	B_in = Bin;
+	opcode = op;
+	return 0;
+endfunction: setParams
+
 function int getOutput();
 	int out;
 	logic [3:0] op_type;

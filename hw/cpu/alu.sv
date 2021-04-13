@@ -12,6 +12,9 @@ always_comb begin
 		5'b0001x: begin //SUB
 			op_type = 4'b0001;
 		end
+		5'b10000: begin //SUB: POP
+			op_type = 4'b0001;
+		end
 		5'b00100: begin //LSR
 			op_type = 4'b0110;
 		end
