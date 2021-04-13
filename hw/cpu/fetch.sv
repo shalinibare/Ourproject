@@ -5,35 +5,55 @@
    Description     : First State of the 5-Stage Processor
 */
 
-module fetch(Instruction, addr_out, LastPC, PCInc4, addr_in, rst, clk);
+module fetch(Instruction, PCInc4, LastPC, rst_n, clk);
 
 	parameter N = 32;
 
-	output		[N-1:0] 	Instruction;
-	output reg 	[N-1:0] 	addr_out;
-	output		[N-1:0]		PCInc4;
+	output		[N-1:0] 	Instruction;	// The line of instruction fetched from the instruction memory. 
+											// It will be decoded to check if it is a branch instruction in 
+											// order to perform branch prediction 
 
-	input 		[N-1:0]		LastPC;
-	input 		[N-1:0]		addr_in;
-	input					rst;
+	output		[N-1:0]		PCInc4;			// The incremented PC which will be stored in the IFDE pipeline 
+											// register should the necessity of a branch not taken flush arise 
+
+	input 		[N-1:0]		LastPC;			// If branch weren’t taken, flush the branch PC and revert to the 
+											// previous PC 
+
+	input					rst_n; 			// Reset PC register on low 
 	input 					clk;
+	input 					BranchTaken;	// Comes from Decode stage
 	
-	wire 		[N-1:0] 	pcCurrent;
+	wire 		[N-1:0] 	thisPC;
+	wire 		[N-1:0] 	nextPC;
 	wire 					Flush;
-	wire					BranchTaken;
-	wire		[N-1:0] 	BranchOffset;
+	reg			[N-1:0] 	BranchOffset;
+	wire		[N-1:0] 	pcBranch;
+	wire		[N-1:0] 	adderMuxOutput;
+	
 
 	
-	// Register that holds the Program Counter
-	reg_Nb #(N = 32) pcReg(.q_N(pcCurrent),
-                .clk(clk), .rst(rst), .d_N(addr_in), .writeEn(1'b1));
+	// PC Register
+	reg_Nb #(N = 32) pcReg(.q_N(thisPC),
+                .clk(clk), .rst_n(rst_n), .d_N(nextPC), .writeEn(1'b1));
 
 	// Instruction Memory
-	memory2c instr_mem(.data_out(Instruction), .data_in(16'h0), .addr(pcCurrent), .enable(1'b1), .wr(1'b0), .createdump(1'b0), .clk(clk), .rst(rst));
+	memory2c instr_mem(.data_out(Instruction), .data_in(16'h0), .addr(thisPC), .enable(1'b1), .wr(1'b0), .createdump(1'b0), .clk(clk), .rst(rst));
 
+	// Sign Extension of Branch Offset
+	assign BranchOffset = {15{{Instruction[16]}}, Instruction[16:0]};
 
+	// 2 Adders
 	always @(posedge clk) begin
-		addr_out = pcCurrent + 32'h4
+		// currentPC + 4
+		PCInc4 <= thisPC + 32'h4
+		// BranchOffset + thisPC
+		pcBranch <= thisPC + BranchOffset
 	end
+
+	// Mux right after the 2 adders
+	assign adderMuxOutput = (BranchTaken)?(pcBranch):(PCInc4);
+
+	// Mux right after the 2 adders
+	assign adderMuxOutput = (Flush)?(LastPC):(pcBranch);
    
 endmodule
