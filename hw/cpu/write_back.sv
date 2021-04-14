@@ -4,6 +4,8 @@
    Filename        : write_back.v
    Description     : This is the module for the overall Write Back stage of the processor.
 */
+
+// Should stay the same, subject to change for the pipelined version of the processor
 module write_back (memToReg, readData, addr, data_output);
 	parameter N = 32;
 
@@ -26,11 +28,11 @@ module write_back (memToReg, readData, addr, data_output);
 								//  the Register File in Decode 
 
 	// 2:1 Mux
-	assign WbReg = (WbRegSel)?(Rx):(LR);
+	assign WbReg = (WbRegSel)?(/* 1 */ Rx):(/* 0 */ LR);
 
 	// 4:1 Mux
 	assign WbData = (WbDataSel[1])?( 
-					(WbDataSel[0])?(ExeOut):(MemOut)  
-					):(PCInc4);
+					(WbDataSel[0])?(ExeOut /* 11 */):(MemOut/* 10 */)  
+					):(PCInc4 /* 01 or 00 */);
    
 endmodule

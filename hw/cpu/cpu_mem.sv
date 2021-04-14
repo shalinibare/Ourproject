@@ -5,14 +5,19 @@
    Description     : This module contains all components in the Memory stage of the 
                      processor.
 */
-module memory (clk, rst_n , Addr, MemDataIn, MemWr, memrd, MemOut, halt);
+
+// TODO: currently many unused signals, needs to be looked at once connected with other components
+
+module memory ( /* Input */     clk, rst_n, memrd, halt, Valid,
+                /* Inout */     Addr, MemWr, MemAddr0, MemDataIn, MemOut,
+                /* Output */    MemEn0, MemWrEn0);
+
 	parameter N= 32;
 
     // Input
 	input           clk; 
-    input           rst_n ;        // Reset PC register on low 
+    input           rst_n ;     // Reset PC register on low 
     input           halt;       // for memory2c
-	input   [N-1:0] MemDataIn;	// Data that will be written into the memory 
 	input           memrd;		// Memory read enable 
     input           Valid;		// After requesting the memory, stall the pipeline 
                                 // until Valid is set high
@@ -32,7 +37,7 @@ module memory (clk, rst_n , Addr, MemDataIn, MemWr, memrd, MemOut, halt);
 
 	
 
-	// Data Memory Instatiation
+	// Data Memory
 	memory2c data_mem(
 		.MemOut(MemOut), .data_in(MemDataIn), .addr(Addr), .enable(memrd), 
 		.wr(MemWr), .createdump(halt), .clk(clk), .rst(rst_n));

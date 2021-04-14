@@ -5,10 +5,12 @@
    Description     : First State of the 5-Stage Processor
 */
 
-module fetch(Instruction, PCInc4, LastPC, rst_n, clk);
+
+// TODO: Branch prediction and funcitonality with LastPC which involved the pipelined verison of the CPU
+module fetch(Instruction, PCInc4, LastPC, rst_n, clk, BranchTaken);
 
 	parameter N = 32;
-
+	
 	output		[N-1:0] 	Instruction;	// The line of instruction fetched from the instruction memory. 
 											// It will be decoded to check if it is a branch instruction in 
 											// order to perform branch prediction 
