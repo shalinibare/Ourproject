@@ -1,10 +1,10 @@
 module decode(
-  input clk, rst_n, wEn, SPwe_in, PC,
-  input [31:0] inst, wData, SPin,
-  output [31:0] Reg0Out, Reg1Out, imm, BrPC,
+  input clk, rst_n, wEn, SPwe_in, 
+  input [31:0] inst, wData, SPin, PC,
+  output [31:0] Reg0Out, Reg1Out, imm, BrPC, PC_o,
   output reg [31:0] SPout,
-  output ALU_A_SEL, Branch, MemInSel, memwr, memrd, WbDataSel, WbRegSel, SPwe_o,
-  output [1:0] ALU_B_SEL
+  output Branch, MemInSel, memwr, memrd, WbRegSel, SPwe_o, wEn_o,
+  output [1:0] WbDataSel, ALU_A_SEL, ALU_B_SEL
 );
 
 //Instantiate modules//
@@ -51,7 +51,7 @@ Branch br_mod(.Reg0Out(Reg0Out), .Reg1Out(Reg1Out), .PC(PC), .imm(imm_out),
 		.B(B), .BEQ(BEQ), .JMP(JMP), .BrPC(BrPC), .Branch(Branch));
 
 //Control
-Control con_sig(.opcode(inst[31:27]), .Reg1Sel(Reg1Sel), .wEn(wEn), 
+Control con_sig(.opcode(inst[31:27]), .Reg1Sel(Reg1Sel), .wEn(wEn_o), 
 	.ALU_A_SEL(ALU_A_SEL), .ALU_B_SEL(ALU_B_SEL), .B(B), .BEQ(BEQ), 
 	.JMP(JMP), .MemInSel(MemInSel), .memwr(memwr), .memrd(memrd), .WbDataSel(WbDataSel), 
 	.WbRegSel(WbRegSel), .SPwe(SPwe_o), .Reg0Sel(Reg0Sel), .imm_sel(imm_sel));

@@ -1,5 +1,5 @@
 module execute(
-  input[31:0] RegData0, RegData1, SPOut, imm,
+  input[31:0] RegData0, RegData1, SPOut, imm, PC,
   input[4:0] opcode,
   input ALU_A_SEL, MemInSel,
   input [1:0] ALU_B_SEL,
@@ -9,7 +9,8 @@ module execute(
 //Instantiate modules//
 //Determine inputs
 logic [31:0] ALU_A_in, ALU_B_in, ALUOut;
-assign ALU_A_in = ALU_A_SEL ? SPOut : RegData0;
+assign ALU_A_in = (ALU_A_SEL == 2'b00) ? RegData0 : 
+					(ALU_A_SEL == 2'b01) ? SPOut : PC;
 assign ALU_B_in = (ALU_B_SEL == 2'b00) ? RegData1 : 
 				(ALU_B_SEL == 2'b01) ? imm : 32'h00000004;
 
