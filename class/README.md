@@ -1,3 +1,5 @@
+TODO : Endianness, line 173 changes
+
 # Cloud Loader and ASsembler System (CLASS)
 Welcome to CLASS! The assembler for ECE554 Spring 2021 at UW-Madison.
 
