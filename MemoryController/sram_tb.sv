@@ -1,6 +1,6 @@
 module sram_tb ();
     localparam  DATA_WIDTH=32;
-    localparam  ADDR_WIDTH=3;
+    localparam  ADDR_WIDTH=16;
 
     logic clk;
     logic signed [DATA_WIDTH-1:0] data_a;
@@ -16,7 +16,7 @@ module sram_tb ();
 
     always #5 clk = ~clk;
 
-    integer errors, mycycle;
+    integer errors;
 
     sram #(.DATA_WIDTH(DATA_WIDTH),.ADDR_WIDTH(ADDR_WIDTH))
         DUT(.*);
@@ -51,15 +51,6 @@ module sram_tb ();
             end
         end
 
-        // repeated read
-        for(int addr = 1; addr < 2**ADDR_WIDTH+1; addr++)begin
-            addr_a = addr;
-            @(posedge clk);
-            if(RandomVals[addr-1] != q_a) begin
-                errors++;
-                $display("Error! Expected: %d, Got: %d at address %h. For loop: %d", RandomVals[addr-1] ,q_a, addr_a, addr); 
-            end
-        end
         if (errors == 0) begin
             $display("Write and read for single port is a pass!");
         end
