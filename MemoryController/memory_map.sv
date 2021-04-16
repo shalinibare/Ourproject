@@ -46,11 +46,6 @@
     ram(.data_a(data_a),.data_b(data_b),.addr_a(addr_a),.addr_b(addr_b),
     .we_a(we_a&ram_wr_a),.we_b(we_b&ram_wr_b),.clk(clk),.q_a(out_a),.q_b(out_b));
 
-    wire reda;
-    wire redb;
-    assign reda = |(addr_a[31:12]);
-    assign redb = |(addr_b[31:12]);
-
     assign ram_wr_a = (|(addr_a[31:12])) & we_a;
     assign ram_wr_b = (|(addr_b[31:12])) & we_b;
     assign q_a = ram_en?out_a:reg_a;
