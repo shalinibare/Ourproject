@@ -1,3 +1,7 @@
+// Provide mapping based on addr input.
+// specific addr smaller than 1000 = mmio reg
+// addr larger than and equal to 1000 = sram 
+ 
  module memory_map
  #(parameter DATA_WIDTH=32, parameter ADDR_WIDTH=32) 
  (
@@ -13,6 +17,8 @@
     // sram signals
 
     logic ram_en;
+    wire ram_wr_a;
+    wire ram_wr_b;
     wire [DATA_WIDTH-1:0] out_a, out_b;
 
     // mmio registers
@@ -38,8 +44,15 @@
       
     sram #(.DATA_WIDTH(DATA_WIDTH),.ADDR_WIDTH(ADDR_WIDTH))
     ram(.data_a(data_a),.data_b(data_b),.addr_a(addr_a),.addr_b(addr_b),
-    .we_a(we_a&ram_en),.we_b(we_b&ram_en),.clk(clk),.q_a(out_a),.q_b(out_b));
+    .we_a(we_a&ram_wr_a),.we_b(we_b&ram_wr_b),.clk(clk),.q_a(out_a),.q_b(out_b));
 
+    wire reda;
+    wire redb;
+    assign reda = |(addr_a[31:12]);
+    assign redb = |(addr_b[31:12]);
+
+    assign ram_wr_a = (|(addr_a[31:12])) & we_a;
+    assign ram_wr_b = (|(addr_b[31:12])) & we_b;
     assign q_a = ram_en?out_a:reg_a;
     assign q_b = ram_en?out_b:reg_b;
 

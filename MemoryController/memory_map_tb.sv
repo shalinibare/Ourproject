@@ -1,7 +1,17 @@
+// IMPORTANT!!!!!!!!!!!!!!!!!!!!!!!
+// TB does not account for certain "IMPOSSIBLE" write and read sequences
+// For example, write operation to addr lower than 1000 which is not one of the register will fail. addr = 002 for example.
+// Since tb checks the values of output with an array of random input sored in RandomVals and RandomValsB
+// if RNG writes to a close (+- 4) or the same addr, error will occur. In real operation, such write does not occur. Just ignore.
+
+// directed tests for mmio reg.
+// random for sram
+// still need to test overwrite and read (overwrite test is passed at sram_tb)
+
 module memory_map_tb ();
     localparam  DATA_WIDTH=32;
     localparam  ADDR_WIDTH=16;
-    localparam  TEST_CASE=100;
+    localparam  TEST_CASE=50;
     
     
     logic clk, rst_n;
@@ -51,7 +61,7 @@ module memory_map_tb ();
                 errors++;
                 $display("reg reset Error! Expected: %d, Got: %d at address %h. For loop: %h", 0 ,q_a, addr_a, cnt); 
             end
-            //else $display("reg reset trace! Expected: %d, Got: %d at address %h. For loop: %h", 0 ,q_a, addr_a, cnt); 
+            else $display("reg reset trace! Expected: %d, Got: %d at address %h. For loop: %h", 0 ,q_a, addr_a, cnt); 
         end
         
         if (errors == 0) begin
@@ -82,7 +92,7 @@ module memory_map_tb ();
                 errors++;
                  $display("reg read error! Expected: %d, Got: %d at address %h. At cycle: %d,cnt-1:%d", mmio_reg[cnt-1] ,q_b, addr, mycycle,cnt-1);  
             end 
-            //else $display("reg read trace! Expected: %d, Got: %d at address %h. At cycle: %d,cnt-1:%d", mmio_reg[cnt] ,q_b, addr, mycycle,cnt-1);  
+            else $display("reg read trace! Expected: %d, Got: %d at address %h. At cycle: %d,cnt-1:%d", mmio_reg[cnt-1] ,q_b, addr, mycycle,cnt-1);  
              
         end
         if (errors == 0) begin
@@ -94,21 +104,22 @@ module memory_map_tb ();
         we_a = 1;
         we_b = 1;
         for(int i = 0; i < TEST_CASE; ++i) begin
-            @(negedge clk);
+             //@(negedge clk);
              RandomVals[i] = $urandom();
              RandomValsB[i] = $urandom();
              addr_a = RandomVals[i];
              data_a = RandomVals[i];
              addr_b = RandomValsB[i];
              data_b = RandomValsB[i];
+             @(negedge clk);
         end
         
-
+        
         @(negedge clk);
         we_a = 0;
         we_b = 0;
 
-        for(int i = 0; i < TEST_CASE; ++i) begin
+        for(int i = 0; i < TEST_CASE; i++) begin
             addr_a = RandomVals[i];
             addr_b = RandomValsB[i];
             @(negedge clk);
@@ -116,7 +127,7 @@ module memory_map_tb ();
                 errors++;
                  $display("sram read  port A error! Expected: %d, Got: %d at address %h. At cycle: %d.", RandomVals[i] ,q_a, addr_a, mycycle);  
             end 
-            //else $display("sram read port A trace! Expected: %d, Got: %d at address %h. At cycle: %d.", RandomVals[i] ,q_a, addr_a, mycycle);  
+            else $display("sram read port A trace! Expected: %d, Got: %d at address %h. At cycle: %d.", RandomVals[i] ,q_a, addr_a, mycycle);  
 
             
             
@@ -125,10 +136,12 @@ module memory_map_tb ();
                  $display("sram read port B error! Expected: %d, Got: %d at address %h. At cycle: %d.", RandomValsB[i] ,q_b, addr_b, mycycle);  
             end 
             
-            //else $display("sram read port B trace! Expected: %d, Got: %d at address %h. At cycle: %d.", RandomValsB[i] ,q_b, addr_b, mycycle);  
+            else $display("sram read port B trace! Expected: %d, Got: %d at address %h. At cycle: %d.", RandomValsB[i] ,q_b, addr_b, mycycle);  
             
             
         end
+
+        @(negedge clk);
 
 
         if (errors == 0) begin
