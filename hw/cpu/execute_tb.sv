@@ -1,11 +1,21 @@
 module execute_tb();
 
-logic[31:0] RegData0, RegData1, SPOut, imm, exeOut, RegData1_o;
-logic ALU_A_SEL, MemInSel;
+logic[31:0] RegData0, RegData1, SPout, imm, exeOut, RegData1_o, PC;
+logic MemInSel;
 logic [4:0] opcode;
-logic [1:0] ALU_B_SEL;
+logic [1:0] ALU_A_SEL, ALU_B_SEL;
 
-assign ALU_A_SEL = (opcode == 5'b01111) | (opcode == 5'b10000); //PUSH and POP
+logic[1:0] A_SEL_TEMP;
+always_comb begin
+	if((opcode == 5'b01111) | (opcode == 5'b10000)) begin //PUSH and POP
+		A_SEL_TEMP = 2'b01;
+	end else if (opcode == 5'b10100) begin //Save PC+4 Val (FUN and INT)
+		A_SEL_TEMP = 2'b10;
+	end else begin
+		A_SEL_TEMP = 2'b00;
+	end
+end
+assign ALU_A_SEL = A_SEL_TEMP; //PUSH and POP
 logic [1:0] B_SEL_TEMP;
 always_comb begin
 	if( (opcode == 5'b00001) | (opcode == 5'b00010) |
@@ -28,9 +38,9 @@ int errors;
 //Simple testbench, check multiplexer paths
 initial begin
 	RegData0 = 1;
-	SPOut = 4;
+	SPout = 4;
 	RegData1 = 2;
-	SPOut = 4;
+	PC = 8;
 	imm = 3;
 	opcode = 5'h00;
 	#5;

@@ -20,7 +20,7 @@ wire        MemRead;
 wire [31:0] MemAddress;
 wire [31:0] MemData;
 
-wire        Halt;         /* Halt executed and in Memory or writeback stage */
+wire        halt;         /* halt executed and in Memory or writeback stage */
         
 integer     inst_count;
 integer     cycle_count;
@@ -72,7 +72,7 @@ cpu_top DUT(.*);
 /* Stats */
 always @ (posedge clk) begin
 	if (rst_n) begin
-        	if (Halt || RegWrite || MemWrite) begin
+        	if (halt || RegWrite || MemWrite) begin
             	inst_count = inst_count + 1;
          	end
          	$fdisplay(sim_log_file, "SIMLOG:: Cycle %d PC: %8x I: %8x R: %d %3d %8x M: %d %d %8x %8x",
@@ -86,7 +86,7 @@ always @ (posedge clk) begin
                 MemWrite,
                 MemAddress,
                 MemData);
-	if (RegWrite) begin
+		if (RegWrite) begin
         	if (MemRead) begin
                	// ld
                	$fdisplay(trace_file,"INUM: %8d PC: 0x%04x REG: %d VALUE: 0x%04x ADDR: 0x%04x",
@@ -102,7 +102,7 @@ always @ (posedge clk) begin
                         WriteRegister,
                         WriteData );
             	end
-	end else if (Halt) begin
+		end else if (halt) begin
         	$fdisplay(sim_log_file, "SIMLOG:: Processor halted\n");
            	$fdisplay(sim_log_file, "SIMLOG:: sim_cycles %d\n", cycle_count);
            	$fdisplay(sim_log_file, "SIMLOG:: inst_count %d\n", inst_count);
@@ -130,7 +130,7 @@ always @ (posedge clk) begin
                          (inst_count-1),
                          PC );
             	end
-        end 
+		end 
 	end      
 end
 
@@ -144,37 +144,37 @@ end
     
 //   assign PC = DUT.fetch0.pcCurrent; //You won't need this because it's part of the main cpu interface
    //assign Inst = DUT.fetch0.instr;
-   assign Inst = DUT.Inst;
+   assign Inst = DUT.inst;
 
    //assign RegWrite = DUT.decode0.regFile0.write;
-   assign RegWrite = DUT.Ctrl_RegWrite;
+   assign RegWrite = DUT.wEn;
    // Is memory being read, one bit signal (1 means yes, 0 means no)
    
    //assign WriteRegister = DUT.decode0.regFile0.writeregsel;
-   assign WriteRegister = DUT.Inst[11:8];
+   assign WriteRegister = DUT.inst[26:22];
    // The name of the register being written to. (4 bit signal)
 
    //assign WriteData = DUT.decode0.regFile0.writedata;
-   assign WriteData = DUT.Write_Data_Input;
+   assign WriteData = DUT.wData;
    // Data being written to the register. (16 bits)
    
    //assign MemRead =  DUT.memory0.memRead;
-   assign MemRead =  DUT.Ctrl_MemRead;
+   assign MemRead =  DUT.memrd;
    // Is memory being read, one bit signal (1 means yes, 0 means no)
    
    //assign MemWrite = (DUT.memory0.memReadorWrite & DUT.memory0.memWrite);
-   assign MemWrite = DUT.Ctrl_MemWrite;
+   assign MemWrite = DUT.memwr;
    // Is memory being written to (1 bit signal)
    
    //assign MemAddress = DUT.memory0.aluResult;
-   assign MemAddress = DUT.Alu_Out;
+   assign MemAddress = DUT.exeOut;
    // Address to access memory with (for both reads and writes to memory, 16 bits)
    
    //assign MemData = DUT.memory0.writeData;
-   assign MemData = DUT.Data2;
+   assign MemData = DUT.RegData1_o;
    // Data to be written to memory for memory writes (16 bits)
    
-//   assign Halt = DUT.memory0.halt; //You won't need this because it's part of the main cpu interface
+//   assign halt = DUT.memory0.halt; //You won't need this because it's part of the main cpu interface
    // Is processor halted (1 bit signal)
    
    /* Add anything else you want here */

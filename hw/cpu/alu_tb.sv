@@ -24,6 +24,9 @@ function int getOutput();
 		5'b0001x: begin //SUB
 			op_type = 4'b0001;
 		end
+		5'b10000: begin //SUB: POP
+			op_type = 4'b0001;
+		end
 		5'b00100: begin //LSR
 			op_type = 4'b0110;
 		end
@@ -93,7 +96,7 @@ alu DUT(.*);
 alu_tc inDrivers;
 
 int errors;
-int tests = 50;
+int tests = 150;
 
 initial begin
 	ALU_A_in = 32'h0;

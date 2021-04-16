@@ -1,13 +1,13 @@
 //Version 0.1
 module Control(
   input[4:0] opcode,
-  output Reg1Sel, wEn, ALU_A_SEL, B, BEQ, JMP, RET, MemInSel, memwr, WbRegSel, SPwe, memrd,
-  output[1:0] Reg0Sel, imm_sel, WbDataSel, ALU_B_SEL
+  output Reg1Sel, wEn, B, BEQ, JMP, RET, MemInSel, memwr, WbRegSel, SPwe, memrd,
+  output[1:0] Reg0Sel, imm_sel, WbDataSel, ALU_A_SEL, ALU_B_SEL
 );
 
 assign Reg1Sel = memrd | memwr; //Rx for memory operations
 assign wEn = (opcode[4:3] == 2'b00) | (opcode[3:1] == 3'b100) | 
-			(opcode[3:1] == 3'b110) | (opcode == 5'b10000) | (opcode == 5'b10100); //Reg file write enable
+			(opcode == 5'b01100) | (opcode == 5'b01101) | (opcode == 5'b10000) | (opcode == 5'b10100); //Reg file write enable
 
 logic[1:0] A_SEL_TEMP;
 always_comb begin
@@ -19,13 +19,13 @@ always_comb begin
 		A_SEL_TEMP = 2'b00;
 	end
 end
-assign ALU_A_SEL = (opcode == 5'b01111) | (opcode == 5'b10000); //PUSH and POP
+assign ALU_A_SEL = A_SEL_TEMP;
 
 
 //Determine if ALU input is immediate or 4
 logic [1:0] B_SEL_TEMP;
 always_comb begin
-	if( (opcode == 5'b00001) | (opcode == 5'b00010) |
+	if( (opcode == 5'b00001) | (opcode == 5'b00011) |
 			(opcode[4:1] == 4'b0010) | (opcode == 5'b00110) |
 			(opcode[4:1] == 4'b0110) | (opcode == 5'b01110)) begin //Imm
 		B_SEL_TEMP = 2'b01;
@@ -47,10 +47,10 @@ assign memrd = (opcode == 5'b10000) | (opcode == 5'b01101); //mem read enable
 assign memwr = (opcode == 5'b01111) | (opcode == 5'b01110); //PUSH and ST
 
 assign WbDataSel = (opcode[4:3] == 2'b00) | (opcode[4:1] == 4'b0100) | 
-					(opcode == 5'b01100) ? (2'b00) : //ALU operations
+					(opcode == 5'b01100) ? (2'b11) : //ALU operations
 					//Memory Loads
-					(opcode == 5'b01101) | (opcode == 5'b10000) ? (2'b01) :
-					(2'b10); //Link Register
+					(opcode == 5'b01101) | (opcode == 5'b10000) ? (2'b10) :
+					(2'b00); //Link Register
 assign WbRegSel = (opcode == 5'b10100); //Rx or Link register write
 
 assign SPwe = (opcode == 5'b01111) | (opcode == 5'b10000); //PUSH and POP

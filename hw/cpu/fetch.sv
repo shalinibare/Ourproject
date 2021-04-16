@@ -21,15 +21,17 @@ module fetch #(parameter N=32)
 											// previous PC 
 	input [N-1:0] BrPC,
 
-	input rst_n, clk, Branch 			// Reset PC register on low 
+	input rst_n, clk, Branch, halt 			// Reset PC register on low 
 );
 	
-	logic [31:0] nextPC;
+	logic [31:0] nextPC, PCInc4;
 	
 	// PC Register
 	always@(posedge clk or negedge rst_n) begin
 		if(!rst_n) begin
-			PC <= 32'h0;
+			PC <= 32'h00000000;
+		end else if(halt) begin
+			PC <= PC;
 		end else begin
 			PC <= nextPC;
 		end
@@ -37,7 +39,7 @@ module fetch #(parameter N=32)
 	
 	
 	// Instruction Memory
-	memory2c instr_mem(.data_out(inst), .data_in(16'h0), .addr(PC), .enable(1'b1), .wr(1'b0), .createdump(1'b0), .clk(clk), .rst(~rst_n));
+	memory2c instr_mem(.data_out(inst), .data_in(32'h0), .addr(PC >> 2 /*temp fix*/), .enable(1'b1), .wr(1'b0), .createdump(1'b0), .clk(clk), .rst(~rst_n));
 
 	// Sign Extension of Branch Offset (used in multistage)
 	//assign BranchOffset = {15{{Instruction[16]}}, Instruction[16:0]};

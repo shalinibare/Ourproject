@@ -55,7 +55,7 @@ module memory2c (data_out, data_in, addr, enable, wr, createdump, clk, rst);
 
    //    assign data_temp_0 = mem[addr];
    //    assign data_temp_2 = mem[{addr+8'h1];
-   assign         data_out = (enable & (~wr))? {mem[addr],mem[addr+8'h1]}: 0;
+   assign         data_out = (enable & (~wr))? {mem[addr]}: 0;
    initial begin
       loaded = 0;
       largest = 0;

@@ -29,11 +29,11 @@ module write_back
 );
 
 	// 2:1 Mux
-	assign WbReg = (WbRegSel)?(/* 1 */ Rx):(/* 0 */ LR);
+	assign WbReg = (WbRegSel)?(/* 1 */ LR):(/* 0 */ Rx);
 
 	// 4:1 Mux
 	assign WbData = (WbDataSel[1])?( 
-					(WbDataSel[0])?(ExeOut /* 11 */):(MemOut/* 10 */)  
+					(WbDataSel[0])?(exeOut /* 11 */):(MemOut/* 10 */)  
 					):(PCInc4 /* 01 or 00 */);
    
 endmodule

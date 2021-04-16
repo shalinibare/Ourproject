@@ -2,12 +2,12 @@ module cpu_top(
 	input clk, rst_n, nextTransaction,
 	input [1:0] Interrupt,
 	output ack, en, halt,
-	output [31:0] memDataOut, memAddr //DMA FSM stuff (tbt)
+	output [31:0] memDataOut, memAddr, PC //DMA FSM stuff (tbt)
 );
 
-logic [31:0] RegData0, RegData1, imm, BrPC, SPOut, SPin, exeOut, wData;
-logic [31:0] PC, inst, LastPC;
-logic [31:0] RegData1_o;
+logic [31:0] Reg0Out, Reg1Out, imm, BrPC, SPout, SPin, exeOut, wData, PC_o;
+logic [31:0] inst, LastPC;
+logic [31:0] RegData1_o, RegData0, RegData1;
 logic [31:0] Addr, MemDataIn, MemOut;
 logic [31:0] WbData;
 logic [4:0] Rx, LR, WbReg;
@@ -45,8 +45,10 @@ decode dec_stage(.*);
 //D_X Pipeline
 
 //Execute
-execute exe_stage(.RegData0(RegData0), .RegData1(RegData1), .SPOut(SPOut), .imm(imm), .opcode(inst[31:27]),
-				.ALU_A_SEL(ALU_A_SEL), .ALU_B_SEL(ALU_B_SEL), .MemInSel(MemInSel), 
+assign RegData0 = Reg0Out;
+assign RegData1 = Reg1Out;
+execute exe_stage(.RegData0(RegData0), .RegData1(RegData1), .SPout(SPout), .imm(imm), .opcode(inst[31:27]),
+				.ALU_A_SEL(ALU_A_SEL), .ALU_B_SEL(ALU_B_SEL), .MemInSel(MemInSel), .PC(PC_o), 
 				.exeOut(exeOut), .RegData1_o(RegData1_o));
 
 //X_M Pipeline
@@ -60,8 +62,10 @@ memory mem_stage(.*);
 //M_W Pipeline
 
 //Writeback
-
-wb wb_stage(.*);
+logic [31:0] PCInc4;
+assign Rx = inst[26:22];
+assign PCInc4 = PC + 4; //temp hold
+write_back wb_stage(.*);
 
 assign halt = &inst[31:27];
 

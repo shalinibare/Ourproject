@@ -14,11 +14,11 @@ module memory #(parameter N=32)
     // Input
 	input           clk, rst_n, halt, memrd, memwr, valid,
     // Input and Output
-	inout   [N-1:0] Addr,      // Memory address to be accessed 
+	input   [N-1:0] Addr,      // Memory address to be accessed 
     //inout   [N-1:0] MemAddr0;   // Memory address being written/read to/from 
                                 // MemInsel ? SPOut  :  ALUOut 
-    inout   [N-1:0] MemDataIn,  // Data that will be written into the memory
-    inout   [N-1:0] MemOut     // The read data from memory 
+    input   [N-1:0] MemDataIn,  // Data that will be written into the memory
+    output   [N-1:0] MemOut     // The read data from memory 
 
 	// Output
     //output          MemEn0;     // Whether there is a request from the source module 
@@ -29,7 +29,7 @@ module memory #(parameter N=32)
 
 	// Data Memory
 	memory2c data_mem(
-		.MemOut(MemOut), .data_in(MemDataIn), .addr(Addr), .enable(memrd), 
+		.data_out(MemOut), .data_in(MemDataIn), .addr(Addr), .enable(memrd), 
 		.wr(memwr), .createdump(halt), .clk(clk), .rst(rst_n));
    
 endmodule
