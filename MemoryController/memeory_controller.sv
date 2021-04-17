@@ -13,45 +13,65 @@ module memory_controller
     AclWrEn,
     DMAWrEn,
 
-    input CPUAddr[ADDR_WIDTH-1:0],
-    AclAddr[ADDR_WIDTH-1:0],
-    DMAAddr[ADDR_WIDTH-1:0],
+    input [ADDR_WIDTH-1:0]CPUAddr,
+          AclAddr,
+          DMAAddr,
 
-    input CPUData[DATA_WIDTH-1:0],
-    AclData[DATA_WIDTH-1:0],
-    DMAData[DATA_WIDTH-1:0],
+    input [DATA_WIDTH-1:0]CPUData,
+          AclData,
+          DMAData,
 
-    output logic CPUOut[DATA_WIDTH-1:0],
-    logic AclOut[DATA_WIDTH-1:0],
-    logic DMAOut[DATA_WIDTH-1:0],
+    output wire [DATA_WIDTH-1:0]CPUOut,
+    AclOut,
+    DMAOut,
 
     output reg CPUValid,
-    reg AclValid,
-    reg DMAValid
+    AclValid,
+    DMAValid
 );
 
-    logic AddrA[ADDR_WIDTH-1:0];
-    logic AddrB[ADDR_WIDTH-1:0];
+    logic [ADDR_WIDTH-1:0]AddrA;
+    logic [ADDR_WIDTH-1:0]AddrB;
 
-    logic DataA[DATA_WIDTH-1:0];
-    logic DataB[DATA_WIDTH-1:0];
+    logic [DATA_WIDTH-1:0]DataA;
+    logic [DATA_WIDTH-1:0]DataB;
 
-    logic OutA[DATA_WIDTH-1:0];
-    logic OutB[DATA_WIDTH-1:0];
+    logic signed [DATA_WIDTH-1:0]OutA;
+    logic signed [DATA_WIDTH-1:0]OutB;
 
     logic WrA;
     logic WrB;
 
     reg BufferWr;
-    reg BufferAddr[ADDR_WIDTH-1:0];
-    reg BufferData[DATA_WIDTH-1:0];
+    reg [ADDR_WIDTH-1:0]BufferAddr;
+    reg [DATA_WIDTH-1:0]BufferData;
     reg BufferFull;
 
     memory_map #(.DATA_WIDTH(DATA_WIDTH),.ADDR_WIDTH(ADDR_WIDTH))
-    mem(.data_a(DataA),.data_b(DataB),.addr_a(AddrA),.addr_b(Addr_B),.we_a(WrA),.we_b(WrB),.clk(clk),.q_a(OutA),.q_b(OutB));
+    mem(.clk(clk), .rst_n(rst_n), .data_a(DataA), .data_b(DataB),
+        .addr_a(AddrA), .addr_b(AddrB),
+        .we_a(WrA), .we_b(WrB), .q_a(OutA), .q_b(OutB));
 
+    
+    assign DataA = CPUEn?CPUData:DMAData;
+    assign DataB = AclEn?AclData:DMAData;
+    assign AddrA = CPUEn?CPUAddr:DMAAddr;
+    assign AddrB = AclEn?AclAddr:DMAAddr;
+    assign WrA = CPUEn?CPUWrEn:DMAWrEn;
+    assign WrB = AclEn?AclWrEn:DMAWrEn;
+    assign CPUOut = OutA;
+    assign AclOut = OutB;
+    assign DMAOut = CPUValid?OutB:OutA;
 
+    always@(posedge clk) begin
+        if (CPUEn)
+            CPUValid <= 1;
+        else
+            CPUValid <= 0;
+    end
+    
     // accessing sram
+    /*
     always@(posedge clk, negedge rst_n) begin
         // fulfill CPU request
         if (CPUEn) begin
@@ -59,19 +79,21 @@ module memory_controller
             AddrA <= CPUAddr;
             WrA <= CPUWrEn;
             DataA <= CPUData;
-            CPUValid <= 1'b1;
-            CPUOut <= OutA;
+            if (CPUWrEn == 1) begin
+                CPUValid <= 0;
+            end else CPUValid <= 1'b1;
         end
         else begin
             CPUValid <= 1'b0;
-            if (BufferFull) begin
-                // fulfill DMA request if port A available
+            if (BufferFull&AclEn) begin
+                // fulfill DMA queued request if port B is unavailable and port A is available
                 AddrA <= BufferAddr;
                 WrA <= BufferWr;
                 DataA <= BufferData;
-                DMAValid <= 1'b1;
-                DMAOut <= OutA;
                 BufferFull <=1'b0;
+                if (DMAWrEn == 1) begin
+                    DMAValid <= 0;
+                end else DMAValid <= 1'b1;
             end
         end
 
@@ -81,19 +103,21 @@ module memory_controller
             AddrB <= AclAddr;
             WrB <= AclWrEn;
             DataB <= AclData;
-            AclOut <= OutB;
-            AclValid <= 1'b1;
+            if (AclWrEn == 1) begin
+                AclValid <= 0;
+            end else AclValid <= 1'b1;
         end
         else begin
             AclValid <= 1'b0;
             if (BufferFull) begin
-                // fulfill DMA request if port B available
+                // fulfill DMA queued request if port B available
                 AddrB <= BufferAddr;
                 WrB <= BufferWr;
                 DataB <= BufferData;
-                DMAValid <= 1'b1;
-                DMAOut <= OutB;
                 BufferFull <=1'b0;
+                if (DMAWrEn == 1) begin
+                    DMAValid <= 0;
+                end else DMAValid <= 1'b1;
             end
         end
 
@@ -103,8 +127,17 @@ module memory_controller
                 AddrB <= DMAAddr;
                 WrB <= DMAWrEn;
                 DataB <= DMAData;
-                DMAOut <= OutB;
-                DMAValid <= 1'b1;
+                if (DMAWrEn == 1) begin
+                    DMAValid <= 0;
+                end else DMAValid <= 1'b1;
+            end
+            else if (!CPUEn) begin
+                AddrA <= DMAAddr;
+                WrA <= DMAWrEn;
+                DataA <= DMAData;
+                if (DMAWrEn == 1) begin
+                    DMAValid <= 0;
+                end else DMAValid <= 1'b1;
             end
             else begin
                 BufferAddr <= DMAAddr;
@@ -116,6 +149,6 @@ module memory_controller
         else begin
             DMAValid <= 1'b0;
         end
-    end
+    end*/
     
 endmodule
