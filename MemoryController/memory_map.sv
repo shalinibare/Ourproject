@@ -16,7 +16,8 @@
 
     // sram signals
 
-    logic ram_en;
+    logic ram_en_a;
+    logic ram_en_b;
     wire ram_wr_a;
     wire ram_wr_b;
     wire [DATA_WIDTH-1:0] out_a, out_b;
@@ -48,8 +49,8 @@
 
     assign ram_wr_a = (|(addr_a[31:12])) & we_a;
     assign ram_wr_b = (|(addr_b[31:12])) & we_b;
-    assign q_a = ram_en?out_a:reg_a;
-    assign q_b = ram_en?out_b:reg_b;
+    assign q_a = ram_en_a?out_a:reg_a;
+    assign q_b = ram_en_b?out_b:reg_b;
 
     always@(negedge rst_n) begin
         // mmio register reset
@@ -75,103 +76,104 @@
     end
 
     always@(posedge clk) begin     
-        ram_en <= 1;
+        ram_en_a <= 1;
+        ram_en_b <= 1;
 
         case (addr_a)
             32'h 0: 
                 begin
-                    ram_en <= 0;
+                    ram_en_a <= 0;
                     if (we_a)
                         MATMUL_A_In <= data_a;
                     reg_a <= MATMUL_A_In;
                 end
             32'h 100: 
                 begin
-                    ram_en <= 0;
+                    ram_en_a <= 0;
                     if (we_a)
                         MATMUL_B_In <= data_a;
                     reg_a <= MATMUL_B_In;
                 end
             32'h 200: 
                 begin
-                    ram_en <= 0;
+                    ram_en_a <= 0;
                     if (we_a)
                         MATMUL_C_Out <= data_a;
                     reg_a <= MATMUL_C_Out;
                 end
             32'h 300: 
                 begin
-                    ram_en <= 0;
+                    ram_en_a <= 0;
                     if (we_a)
                         MATVEC_A_In <= data_a;
                     reg_a <= MATVEC_A_In;
                 end
             32'h 400: 
                 begin
-                    ram_en <= 0;
+                    ram_en_a <= 0;
                     if (we_a)
                         MATVEC_B_In <= data_a;
                     reg_a <= MATVEC_B_In;
                 end
             32'h 500: 
                 begin
-                    ram_en <= 0;
+                    ram_en_a <= 0;
                     if (we_a)
                         MATVEC_C_Out <= data_a;
                     reg_a <= MATVEC_C_Out;
                 end
             32'h 600: 
                 begin
-                    ram_en <= 0;
+                    ram_en_a <= 0;
                     if (we_a)
                         Dim_M <= data_a;
                     reg_a <= Dim_M;
                 end
             32'h 700: 
                 begin
-                    ram_en <= 0;
+                    ram_en_a <= 0;
                     if (we_a)
                         Dim_N <= data_a;
                     reg_a <= Dim_N;
                 end
             32'h 800: 
                 begin
-                    ram_en <= 0;
+                    ram_en_a <= 0;
                     if (we_a)
                         Dim_P <= data_a;
                     reg_a <= Dim_P;
                 end
             32'h 900: 
                 begin
-                    ram_en <= 0;
+                    ram_en_a <= 0;
                     if (we_a)
                         MP_Addr <= data_a;
                     reg_a <= MP_Addr;
                 end
             32'h A00: 
                 begin
-                    ram_en <= 0;
+                    ram_en_a <= 0;
                     if (we_a)
                         MATMUL_Flag <= data_a;
                     reg_a <= MATMUL_Flag;
                 end
             32'h B00: 
                 begin
-                    ram_en <= 0;
+                    ram_en_a <= 0;
                     if (we_a)
                         MATVEC_Flag <= data_a;
                     reg_a <= MATVEC_Flag;
                 end
             32'h C00: 
                 begin
-                    ram_en <= 0;
+                    ram_en_a <= 0;
                     if (we_a)
                         MP_Flag <= data_a;
                     reg_a <= MP_Flag;
                 end
             32'h D00: 
                 begin
-                    ram_en <= 0;
+                    ram_en_a <= 0;
                     if (we_a)
                         Bias_Addr <= data_a;
                     reg_a <= Bias_Addr;
@@ -181,98 +183,98 @@
         case (addr_b)
             32'h 0: 
                 begin
-                    ram_en <= 0;
+                    ram_en_b  <= 0;
                     if (we_b)
                         MATMUL_A_In <= data_b;
                     reg_b <= MATMUL_A_In;
                 end
             32'h 100: 
                 begin
-                    ram_en <= 0;
+                    ram_en_b  <= 0;
                     if (we_b)
                         MATMUL_B_In <= data_b;
                     reg_b <= MATMUL_B_In;
                 end
             32'h 200: 
                 begin
-                    ram_en <= 0;
+                    ram_en_b  <= 0;
                     if (we_b)
                         MATMUL_C_Out <= data_b;
                     reg_b <= MATMUL_C_Out;
                 end
             32'h 300: 
                 begin
-                    ram_en <= 0;
+                    ram_en_b  <= 0;
                     if (we_b)
                         MATVEC_A_In <= data_b;
                     reg_b <= MATVEC_A_In;
                 end
             32'h 400: 
                 begin
-                    ram_en <= 0;
+                    ram_en_b  <= 0;
                     if (we_b)
                         MATVEC_B_In <= data_b;
                     reg_b <= MATVEC_B_In;
                 end
             32'h 500: 
                 begin
-                    ram_en <= 0;
+                    ram_en_b  <= 0;
                     if (we_b)
                         MATVEC_C_Out <= data_b;
                     reg_b <= MATVEC_C_Out;
                 end
             32'h 600: 
                 begin
-                    ram_en <= 0;
+                    ram_en_b  <= 0;
                     if (we_b)
                         Dim_M <= data_b;
                     reg_b <= Dim_M;
                 end
             32'h 700: 
                 begin
-                    ram_en <= 0;
+                    ram_en_b  <= 0;
                     if (we_b)
                         Dim_N <= data_b;
                     reg_b <= Dim_N;
                 end
             32'h 800: 
                 begin
-                    ram_en <= 0;
+                    ram_en_b  <= 0;
                     if (we_b)
                         Dim_P <= data_b;
                     reg_b <= Dim_P;
                 end
             32'h 900: 
                 begin
-                    ram_en <= 0;
+                    ram_en_b  <= 0;
                     if (we_b)
                         MP_Addr <= data_b;
                     reg_b <= MP_Addr;
                 end
             32'h A00: 
                 begin
-                    ram_en <= 0;
+                    ram_en_b  <= 0;
                     if (we_b)
                         MATMUL_Flag <= data_b;
                     reg_b <= MATMUL_Flag;
                 end
             32'h B00: 
                 begin
-                    ram_en <= 0;
+                    ram_en_b  <= 0;
                     if (we_b)
                         MATVEC_Flag <= data_b;
                     reg_b <= MATVEC_Flag;
                 end
             32'h C00: 
                 begin
-                    ram_en <= 0;
+                    ram_en_b  <= 0;
                     if (we_b)
                         MP_Flag <= data_b;
                     reg_b <= MP_Flag;
                 end
             32'h D00: 
                 begin
-                    ram_en <= 0;
+                    ram_en_b  <= 0;
                     if (we_b)
                         Bias_Addr <= data_b;
                     reg_b <= Bias_Addr;
