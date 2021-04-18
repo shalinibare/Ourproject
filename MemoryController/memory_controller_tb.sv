@@ -79,8 +79,8 @@ module memory_controller_tb ();
         // single port random write and read
         for ( int i = 0; i < TEST_CASE; i++) begin
             RandomVals[i] = $urandom();
-            input_type [i] = $urandom();
-            if(input_type[i]%3 == 0) begin
+            input_type [i] = $urandom()%3;
+            if(input_type[i]== 0) begin
                 CPUEn = 1;
                 CPUWrEn = 1;
                 CPUAddr = RandomVals[i];
@@ -89,7 +89,7 @@ module memory_controller_tb ();
                 CPUEn = 0;
                 CPUWrEn = 0;
             end
-            if(input_type[i]%3 == 1) begin
+            if(input_type[i]== 1) begin
                 AclEn = 1;
                 AclWrEn = 1;
                 AclAddr = RandomVals[i];
@@ -98,7 +98,7 @@ module memory_controller_tb ();
                 AclEn = 0;
                 AclWrEn = 0;
             end
-            if(input_type[i]%3 == 2) begin
+            if(input_type[i]== 2) begin
                 DMAEn = 1;
                 DMAWrEn = 1;
                 DMAAddr = RandomVals[i];
@@ -108,6 +108,56 @@ module memory_controller_tb ();
                 DMAWrEn = 0;
             end
             @(negedge clk);
+
+            if(input_type[i]== 0) begin
+                $display("single read trace: CPU expected:%h, got:%h, CPUValid:%d, AclValid:%d DMAValid:%d .at cycle:%d",RandomVals[i],CPUOut, CPUValid, AclValid, DMAValid,mycycle); 
+                if(CPUOut != RandomVals[i]) begin
+                   errors++;
+                   $display("single read error: CPU expected:%h, got:%h, at cycle:%d",RandomVals[i],CPUOut,mycycle); 
+                end
+                if(CPUValid != 1) begin
+                    $display("CPUValid error: expected: 1, got:%d",CPUValid);
+                end
+                if(DMAValid == 1) begin
+                    $display("DMAValid:%d, error! this is a cpu read", DMAValid);
+                end
+                if(AclValid == 1) begin
+                    $display("AclValid:%d, error! this is a cpu read", AclValid);
+                end
+            end
+
+            if(input_type[i]== 1) begin
+                $display("single read trace: Acl expected:%h, got:%h, AclValid:%d, CPUValid:%d, DMAValid:%d .at cycle:%d",RandomVals[i],AclOut, AclValid, CPUValid, DMAValid,mycycle); 
+                if(AclOut != RandomVals[i]) begin
+                   errors++;
+                   $display("single read error: Acl expected:%h, got:%h, at cycle:%d",RandomVals[i],AclOut,mycycle); 
+                end
+                if(AclValid != 1) begin
+                    $display("CPUValid error: expected: 1, got:%d",AclValid);
+                end
+                if(DMAValid == 1) begin
+                    $display("DMAValid:%d, error! this is a cpu read", DMAValid);
+                end
+                if(CPUValid == 1) begin
+                    $display("CPUValid:%d, error! this is a cpu read", CPUValid);
+                end
+            end
+            if(input_type[i]== 2) begin
+                $display("single read trace: DMA expected:%h, got:%h, DMAValid:%d, CPUValid:%d, AclValid:%d .at cycle:%d",RandomVals[i],DMAOut, DMAValid, CPUValid,AclValid,mycycle); 
+                if(DMAOut != RandomVals[i]) begin
+                   errors++;
+                   $display("single read error: DMA expected:%h, got:%h, at cycle:%d",RandomVals[i],DMAOut,mycycle); 
+                end
+                if(DMAValid != 1) begin
+                    $display("CPUValid error: expected: 1, got:%d",DMAValid);
+                end
+                if(CPUValid == 1) begin
+                    $display("DMAValid:%d, error! this is a cpu read", CPUValid);
+                end
+                if(AclValid == 1) begin
+                    $display("AclValid:%d, error! this is a cpu read", AclValid);
+                end
+            end
         end
         $stop;
     end

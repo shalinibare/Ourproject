@@ -52,22 +52,55 @@ module memory_controller
         .addr_a(AddrA), .addr_b(AddrB),
         .we_a(WrA), .we_b(WrB), .q_a(OutA), .q_b(OutB));
 
-    
-    assign DataA = CPUEn?CPUData:DMAData;
-    assign DataB = AclEn?AclData:DMAData;
-    assign AddrA = CPUEn?CPUAddr:DMAAddr;
-    assign AddrB = AclEn?AclAddr:DMAAddr;
-    assign WrA = CPUEn?CPUWrEn:DMAWrEn;
-    assign WrB = AclEn?AclWrEn:DMAWrEn;
+    assign DataA = CPUEn?CPUData:BufferFull?BufferData:DMAData;
+    assign DataB = AclEn?AclData:BufferFull?(CPUEn?BufferData:DMAData):DMAData;
+    assign AddrA = CPUEn?CPUAddr:BufferFull?BufferAddr:DMAAddr;
+    assign AddrB = AclEn?AclAddr:BufferFull?(CPUEn?BufferAddr:DMAAddr):DMAAddr;
+    assign WrA = CPUEn?CPUWrEn:BufferFull?BufferWr:DMAWrEn;
+    assign WrB = AclEn?AclWrEn:BufferFull?(CPUEn?BufferWr:DMAWrEn):DMAWrEn;
     assign CPUOut = OutA;
     assign AclOut = OutB;
-    assign DMAOut = CPUValid?OutB:OutA;
+    assign DMAOut = CPUValid?OutA:OutB;
+    
 
-    always@(posedge clk) begin
+    always@(posedge clk, negedge rst_n) begin
+        if(!rst_n) begin
+            BufferFull <= 0;
+            BufferWr <= 0;
+            BufferAddr <= 0;
+            BufferData <= 0;
+        end
         if (CPUEn)
             CPUValid <= 1;
         else
             CPUValid <= 0;
+
+        if(AclEn)
+            AclValid <= 1;
+        else
+            AclValid <= 0;
+
+        if (!(CPUEn & AclEn)&DMAEn)
+            DMAValid <= 1;
+        else if (CPUEn&AclEn&DMAEn) begin
+            BufferWr <= DMAWrEn;
+            BufferAddr <= DMAAddr;
+            BufferData <= DMAData;
+            BufferFull <= 1;
+        end
+        else if (!(CPUEn&AclEn)&BufferFull) begin
+            DMAValid <= 1;
+            if(DMAEn) begin
+                BufferWr <= DMAWrEn;
+                BufferAddr <= DMAAddr;
+                BufferData <= DMAData;
+                BufferFull <= 1;
+            end
+            else
+                BufferFull <= 0;
+        end
+        else
+            DMAValid <= 0;   
     end
     
     // accessing sram
