@@ -60,7 +60,7 @@ module memory_controller
     assign WrB = AclEn?AclWrEn:BufferFull?(CPUEn?BufferWr:DMAWrEn):DMAWrEn;
     assign CPUOut = OutA;
     assign AclOut = OutB;
-    assign DMAOut = CPUValid?OutA:OutB;
+    assign DMAOut = CPUValid?OutB:OutA;
     
 
     always@(posedge clk, negedge rst_n) begin
