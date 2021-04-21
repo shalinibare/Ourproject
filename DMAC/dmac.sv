@@ -1,6 +1,4 @@
 
-`include "cci_mpf_if.vh"
-
      
 module DMAC
   #(parameter DATA_WIDTH=32, parameter ADDR_WIDTH=32, parameter int SIZE_WIDTH) 
