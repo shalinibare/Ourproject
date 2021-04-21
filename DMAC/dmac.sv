@@ -7,7 +7,7 @@ module DMAC
 (
     input clk, rst_n,
   
-  	mmio_if.user HOST_MMIO_IF,
+    mmio_if.user HOST_MMIO_IF,
     dma_if.peripheral HOST_DMA_IF,
   
     input  Rd_go,
@@ -29,16 +29,25 @@ module DMAC
 
 );
 
+   assign HOST_DMA_IF.rd_addr = Base_addr + Rd_addr;
+   assign HOST_DMA_IF.wr_addr = Base_addr + Wr_addr;
+   
+   assign HOST_DMA_IF.wr_data = Wr_data;
+   assign Rd_data = HOST_DMA_IF.rd_data;
+     
+   assign HOST_DMA_IF.rd_size = Rd_size;
+   assign HOST_DMA_IF.wr_size = Wr_size;
 
+   assign HOST_DMA_IF.rd_go = Rd_go;
+   assign HOST_DMA_IF.wr_go = Wr_go;
+     
+   assign Empty = HOST_DMA_IF.empty;
+   assign Full = HOST_DMA_IF.full;
+     
+   assign HOST_DMA_IF.rd_en = Rd_en;
+   assign HOST_DMA_IF.wr_en = Wr_en;
+     
+   assign Wr_done = HOST_DMA_IF.wr_done;
+   assign Rr_done = HOST_DMA_IF.rd_done;
 
-    always@(posedge clk, negedge rst_n) begin
-        if(!rst_n) begin
-            
-        end
-        if (CPUEn)
-            CPUValid <= 1;
-        else
-            CPUValid <= 0; 
-    end
-    
 endmodule
