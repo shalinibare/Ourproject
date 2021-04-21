@@ -7,9 +7,10 @@ module DMAC
 (
     input clk, rst_n,
   
-    mmio_if.user HOST_MMIO_IF,
+    //mmio_if.user HOST_MMIO_IF, 
     dma_if.peripheral HOST_DMA_IF,
-  
+    input  [ADDR_WIDTH-1:0] Base_addr, //Set by the Host through MMIO? To be taken care in AFU
+     
     input  Rd_go,
     input  [SIZE_WIDTH-1:0] Rd_size,
     input  [ADDR_WIDTH-1:0] Rd_addr,
