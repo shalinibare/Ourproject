@@ -19,7 +19,6 @@ module DMAC
 
     input Wr_go,
     input [SIZE_WIDTH-1:0] Wr_size,
-    input Wr_size,
     input [ADDR_WIDTH-1:0] Wr_addr,
     input [DATA_WIDTH-1:0] Wr_data,
     output Full,
